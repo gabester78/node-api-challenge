@@ -13,11 +13,11 @@ router.get("/", (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).json({ error: "Projects not found" });
+      res.status(500).json({ error: "Actions not found" });
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", validateProjectId, (req, res) => {
   actions
     .get(req.params.id)
     .then((project) => {
@@ -25,11 +25,11 @@ router.get("/:id", (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).json({ error: "Project not found." });
+      res.status(500).json({ error: "Action not found." });
     });
 });
 
-router.post("/", (req, res) => {
+router.post("/", validateProjectId, (req, res) => {
   actions
     .insert(req.body)
     .then((project) => {
@@ -37,11 +37,11 @@ router.post("/", (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).json({ error: "Unable to post the project." });
+      res.status(500).json({ error: "Unable to post the action." });
     });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateProjectId, (req, res) => {
   actions
     .update(req.params.id, req.body)
     .then((project) => {
@@ -49,11 +49,11 @@ router.put("/:id", (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).json({ error: "Unable to update the project." });
+      res.status(500).json({ error: "Unable to update the action." });
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateProjectId, (req, res) => {
   actions
     .remove(req.params.id)
     .then((project) => {
@@ -61,8 +61,24 @@ router.delete("/:id", (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).json({ error: "Unable to delete the project." });
+      res.status(500).json({ error: "Unable to delete the action." });
     });
 });
+
+function validateProjectId(req, res, next) {
+  actions
+    .get(req.params.id)
+    .then((id) => {
+      if (id) {
+        next();
+      } else {
+        res.status(404).send("The id doesn't exsist.");
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send("Error validating id");
+    });
+}
 
 module.exports = router;
